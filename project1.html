@@ -1,0 +1,344 @@
+<!doctype html>
+<html >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Responsive Landing Page — Interactive Fixed Nav</title>
+  <style>
+    :root{
+      --bg: #0f1724;
+      --accent: #06b6d4; 
+      --muted: #94a3b8;
+      --nav-bg: rgba(15,23,36,0.6);
+      --nav-bg-scrolled: rgba(255,255,255,0.98);
+      --nav-color: #ffffff;
+      --nav-color-scrolled: #0b1220;
+      --glass: rgba(255,255,255,0.06);
+      --radius: 12px;
+    }
+    /**{box-sizing:border-box}*/
+    body{
+      margin:0px;
+      padding: 0px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#071028 0%, #0f1724 100%);
+      color: #e6eef6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.5;
+    }
+
+    /* ---------- NAV ---------- */
+    .nav-wrap{
+      position:fixed;
+      top:0;left:0;right:0;
+      z-index:9999;
+      display:flex;
+      justify-content:center;
+      pointer-events:none; 
+    }
+    nav{
+      pointer-events:auto; 
+      width:100%;
+      max-width:1200px;
+      margin:12px;
+      background:var(--nav-bg);
+      backdrop-filter: blur(6px) saturate(120%);
+      border-radius:14px;
+      padding:8px 14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      transition:all 220ms ease;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    }
+    nav.scrolled{
+      background:var(--nav-bg-scrolled);
+      box-shadow: 0 10px 30px rgba(2,6,23,0.18);
+    }
+    nav .logo{
+      display:flex;align-items:center;
+      gap:10px;font-weight:700;
+      font-size:18px;color:var(--nav-color);
+    }
+    nav.scrolled .logo{color:var(--nav-color-scrolled)}
+
+    .logo mark{
+      background:linear-gradient(90deg,var(--accent),#8b5cf6);
+      -webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800
+    }
+
+    .menu{
+      display:flex;gap:8px;
+      margin-left:auto;align-items:center;
+    }
+    .menu a{
+      text-decoration:none;color:var(--nav-color);
+      padding:8px 12px;border-radius:8px;
+      font-weight:600;font-size:14px;
+      transition:all 150ms ease;
+      display:inline-block;
+    }
+    nav.scrolled .menu a{color:var(--nav-color-scrolled)}
+    .menu a:hover{transform:translateY(-2px);background:var(--glass)}
+    .menu a.active{
+      background:linear-gradient(90deg,var(--accent),#8b5cf6);
+      color:#051223;padding:8px 14px;box-shadow:0 6px 16px rgba(6,182,212,0.16);
+    }
+
+    /* Hamburger for mobile */
+    .hamburger{
+      display:none;flex-direction:column;
+      gap:4px;width:36px;height:36px;
+      align-items:center;justify-content:center;
+      border-radius:10px;cursor:pointer;
+      background:transparent;border:0;
+      outline:none;
+    }
+    .hamburger span{
+      display:block;width:18px;height:2px;
+      background:var(--nav-color);
+      border-radius:2px;
+      transition:all 180ms ease
+    }
+    nav.scrolled .hamburger span{
+    background:var(--nav-color-scrolled)
+    }
+    .hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+    .hamburger.open span:nth-child(2){opacity:0}
+    .hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+    /* Mobile menu panel */
+    .mobile-panel{
+      display:none;flex-direction:column;
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),
+      rgba(255,255,255,0.01));padding:8px;border-radius:10px;
+      margin-top:8px;gap:6px;box-shadow:0 10px 30px rgba(2,6,23,0.4);
+    }
+
+    /* ---------- HERO ---------- */
+    .hero{
+      align-items:center;
+      padding:120px 20px 60px;
+    }
+    .container{
+      width:100%;max-width:1200px;
+      margin:0 auto;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1fr 420px;gap:36px;
+      align-items:center;
+    }
+    .hero h1{
+      font-size:clamp(28px,5vw,44px);margin:0 0 18px;
+    }
+    .hero p{
+      color:var(--muted);margin:0 0 22px;
+    }
+    .cta{display:inline-flex;gap:10px;align-items:center}
+    .btn{background:var(--accent);color:#041023;padding:12px 18px;border-radius:10px;font-weight:700;text-decoration:none;box-shadow:0 10px 30px rgba(6,182,212,0.12)}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));padding:18px;border-radius:14px}
+
+    /* ---------- SECTIONS ---------- */
+    section{
+      padding:80px 0;
+    }
+    .features{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:20px;
+    }
+    .feature{
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
+      padding:18px;border-radius:12px;
+    }
+
+    footer{padding:40px 0;color:var(--muted);text-align:center}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .hero-grid{grid-template-columns:1fr;}
+      .menu{display:none}
+      .hamburger{display:flex;margin-left:auto}
+      .mobile-panel{display:none;width:100%}
+      nav{padding:10px}
+    }
+
+    @media (max-width:480px){
+      nav{margin:8px}
+      .logo{font-size:16px}
+    }
+
+    /* subtle focus outlines */
+    a:focus{
+      outline:3px solid rgba(6,182,212,0.14);
+      outline-offset:3px;border-radius:8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="nav-wrap">
+    <nav id="mainNav" role="navigation" aria-label="Main Navigation">
+      <div class="logo" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#g)"/></svg>
+        <span>Osmo<mark>sis</mark></span>
+      </div>
+
+      <button class="hamburger" id="hamburger" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="menu" id="menu">
+        <a href="#home" data-target="home" class="active">Home</a>
+        <a href="#features" data-target="features">Features</a>
+        <a href="#about" data-target="about">About</a>
+        <a href="#contact" data-target="contact">Contact</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Mobile panel (duplicated links for accessibility) -->
+  <div class="container" style="padding-top:74px">
+    <div id="mobileMenu" class="mobile-panel" aria-hidden="true">
+      <a href="#home" data-target="home">Home</a>
+      <a href="#features" data-target="features">Features</a>
+      <a href="#about" data-target="about">About</a>
+      <a href="#contact" data-target="contact">Contact</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <main>
+    <section id="home" class="hero container">
+      <div class="hero-grid">
+        <div>
+          <h1>Landing Page</h1>
+          <p>"Welcome to our modern, responsive landing page—designed to deliver a seamless user experience with clean visuals, smooth navigation, and interactive features that make your digital journey effortless and engaging."</p>
+          <div class="cta">
+            <a class="btn" href="#contact">Get Started</a>
+            <a class="btn" style="background:transparent;color:var(--nav-color);border:1px solid rgba(255,255,255,0.06)" href="#features">See Features</a>
+          </div>
+        </div>
+        <aside class="card">
+          <h3 style="margin:0 0 8px">Quick demo</h3>
+          <p style="margin:0 0 12px;color:var(--muted)">Resize your browser and scroll — watch the nav change color and style. Mobile shows a hamburger that toggles the panel.</p>
+          <ul style="margin:0;padding-left:18px;color:var(--muted)">
+            <li>Fixed top navigation</li>
+            <li>Scroll-aware background + shadow</li>
+            <li>Hover and active states</li>
+            <li>Accessible mobile panel</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section id="features" class="container">
+      <h2>Features</h2>
+      <div class="features">
+        <div class="feature">
+          <h4>Scroll style</h4>
+          <p class="muted">Nav swaps to a brighter background and dark text once you scroll past the hero.</p>
+        </div>
+        <div class="feature">
+          <h4>Hover micro-interactions</h4>
+          <p class="muted">Menu items lift gently and show a subtle background on hover for clarity and delight.</p>
+        </div>
+        <div class="feature">
+          <h4>Mobile-friendly</h4>
+          <p class="muted">Hamburger toggles a compact list; links remain keyboard-accessible and screen-reader friendly.</p>
+        </div>
+        <div class="feature">
+          <h4>Active section highlight</h4>
+          <p class="muted">As you scroll, the nav highlights the section you're viewing using Intersection Observer.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="container">
+      <h2>About</h2>
+      <p style="max-width:800px;color:var(--muted)">"We are a dedicated team committed to delivering innovative, high-quality digital solutions that help businesses grow and users enjoy seamless experiences."</p>
+    </section>
+
+    <section id="contact" class="container">
+      <h2>Contact</h2>
+      <p style="color:var(--muted)">Hello! I’m exploring web development opportunities. Let’s connect</p>
+    </section>
+
+    <footer class="container">
+      <small>&copy; 2025 Brandify — built with Osmosis.</small>
+    </footer>
+  </main>
+
+  <script>
+
+const nav = document.getElementById("mainNav");
+const hamburger = document.getElementById("hamburger");
+const mobileMenu = document.getElementById("mobileMenu");
+const desktopLinks = document.querySelectorAll("nav .menu a");
+const mobileLinks = document.querySelectorAll("#mobileMenu a");
+
+ // *** Navbar Color Change On Scroll ***
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 60) nav.classList.add("scrolled");
+  else nav.classList.remove("scrolled");
+});
+
+
+// ** hamburger menu toggle ** 
+hamburger.addEventListener("click", () => {
+  const isOpen = hamburger.classList.toggle("open");
+  mobileMenu.style.display = isOpen ? "flex" : "none";
+});
+
+ // *** Smooth page scroll  *** 
+
+function smoothScroll(event) {
+  event.preventDefault();
+  const targetId = event.target.getAttribute("href").slice(1);
+  const section = document.getElementById(targetId);
+
+  window.scrollTo({
+    top: section.offsetTop - 70,
+    behavior: "smooth",
+  });
+
+  // Close mobile menu after click
+
+  if (hamburger.classList.contains("open")) {
+    hamburger.classList.remove("open");
+    mobileMenu.style.display = "none";
+  }
+}
+
+// Add smooth scroll to all menu links
+[...desktopLinks, ...mobileLinks].forEach((link) => {
+  link.addEventListener("click", smoothScroll);
+});
+
+// *** Highlight Active Section *** 
+const sections = document.querySelectorAll("main section[id]");
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        // Remove old active
+        [...desktopLinks, ...mobileLinks].forEach((a) =>
+          a.classList.remove("active")
+        );
+
+        // Add active to current
+        document
+          .querySelectorAll(`[data-target="${entry.target.id}"]`)
+          .forEach((a) => a.classList.add("active"));
+      }
+    });
+  },
+  { rootMargin: "-40% 0px -40% 0px" }
+);
+
+sections.forEach((sec) => observer.observe(sec));
+</script>
+</body>
+</html>
